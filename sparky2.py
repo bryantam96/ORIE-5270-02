@@ -1,13 +1,12 @@
 # python sparky2.py
 
 import re
-import sys
 from pyspark import SparkConf, SparkContext
 
 SparkContext.setSystemProperty('spark.executor.memory', '8g')
 conf = SparkConf()
 sc = SparkContext(conf=conf)
-lines = sc.textFile('soc-data3.txt')
+lines = sc.textFile('soc-data.txt')
 
 def separator(line):
     pairs = re.split('\t',line)
@@ -16,9 +15,6 @@ def separator(line):
     return pairs
 
 pairs = lines.map(separator)
-users = pairs.map(lambda x: x[0])
-frens = pairs.map(lambda x: x[1])
-
 
 numpa = pairs.cartesian(pairs)
 
@@ -41,26 +37,8 @@ def top5(elem1):
 
 recos = numpa.map(top5)
 
-#colls = lines.map(lambda l: re.split('\t', l))
-#users = lines.map(lambda l: re.split('\t', l)[0])
-#frens = colls.map(lambda l: re.split(',', l[1]))
-
-#words = lines.flatMap(lambda l: re.split(r'[^\w]+', l))
-#pairs = words.map(lambda w: (w, 1))
-#counts = pairs.reduceByKey(lambda n1, n2: n1 + n2)
-
-"""
-
-users[1] = users[1].flatMap(lambda l: re.split(',', l))
-pairs = users[1].map(lambda w: (w, 1))
-counts = pairs.reduceByKey(lambda n1, n2: n1 + n2)
-"""
-
 pairs.saveAsTextFile('output1')
-users.saveAsTextFile('output2')
-frens.saveAsTextFile('output3')
-numpa.saveAsTextFile('output5')
-#numga.saveAsTextFile('output5')
-recos.saveAsTextFile('output6')
+numpa.saveAsTextFile('output2')
+recos.saveAsTextFile('output3')
 
 sc.stop()
